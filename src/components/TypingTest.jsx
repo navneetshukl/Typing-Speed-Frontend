@@ -16,14 +16,14 @@ const TypingTestUI = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [errors, setErrors] = useState(0);
+  const [errorPercentage, setErrorPercentage] = useState(0);
+  const[accuracy,setAccuracy]=useState(0);
+  const[progressPercentage,setProgressPercentage]=useState(0);
 
   // Static UI data for display
   const sampleText = "The quick brown.";
   const wpm = 45;
-  const accuracy = 95;
   const timeElapsed = 25;
-  const errorPercentage = 5;
-  const progressPercentage = 40;
   const isActive = true;
   const isMobile = false;
 
@@ -39,14 +39,37 @@ const TypingTestUI = () => {
       event.preventDefault();
       return;
     }
-    setUserInput(event.target.value);
+
+    const newInput = event.target.value;
+    setUserInput(newInput);
+
+    let newErrors = errors;
+
+    if (newInput[currentIndex] !== sampleText[currentIndex]) {
+      newErrors = errors + 1;
+      setErrors(newErrors);
+    }
+
+    const totalCharactersTyped = currentIndex + 1;
+    const calculatedErrorPercentage =
+      totalCharactersTyped > 0
+        ? Math.round((newErrors / totalCharactersTyped) * 100)
+        : 0;
+
+    // Calculate accuracy percentage
+    const correctCharacters = totalCharactersTyped - newErrors;
+    const calculatedAccuracy = totalCharactersTyped > 0 
+      ? Math.round((correctCharacters / totalCharactersTyped) * 100)
+      : 100;
+
+    // Calculate progress percentage
+    const calculatedProgress = Math.round((totalCharactersTyped / sampleText.length) * 100);
+
+    setErrorPercentage(calculatedErrorPercentage);
+    setAccuracy(calculatedAccuracy);
+    setProgressPercentage(calculatedProgress);
     setCurrentIndex(currentIndex + 1);
 
-    sampleText.split("").map((value, index) => {
-      if (value != userInput[currentIndex]) {
-        setErrors(errors + 1);
-      }
-    });
     if (currentIndex >= sampleText.length - 1) {
       setIsCompleted(true);
       setDisabled(true);
@@ -59,6 +82,18 @@ const TypingTestUI = () => {
       e.preventDefault();
       return;
     }
+  };
+
+  const reset = () => {
+    console.log("Reset button is clicked");
+    setUserInput("");
+    setCurrentIndex(0);
+    setIsCompleted(false);
+    setDisabled(false);
+    setErrors(0);
+    setAccuracy(0);
+    setErrorPercentage(0);
+    setProgressPercentage(0);
   };
 
   // Render text with color coding (UI only)
@@ -255,7 +290,10 @@ const TypingTestUI = () => {
 
         {/* Control Buttons */}
         <div className="flex flex-wrap gap-1 md:gap-2 justify-center mb-2 md:mb-4 w-full flex-shrink-0">
-          <button className="group flex items-center gap-1 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white px-2 py-1 md:px-3 md:py-2 rounded-md md:rounded-lg transition-all duration-300 font-semibold shadow border border-slate-500 text-xs w-full md:w-auto justify-center">
+          <button
+            className="group flex items-center gap-1 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white px-2 py-1 md:px-3 md:py-2 rounded-md md:rounded-lg transition-all duration-300 font-semibold shadow border border-slate-500 text-xs w-full md:w-auto justify-center"
+            onClick={reset}
+          >
             <RotateCcw
               size={12}
               className="md:w-3 md:h-3 group-hover:rotate-12 transition-transform duration-300"
