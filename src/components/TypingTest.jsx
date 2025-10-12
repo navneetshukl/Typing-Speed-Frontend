@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   RotateCcw,
   Play,
@@ -17,29 +17,39 @@ const TypingTestUI = () => {
   const [disabled, setDisabled] = useState(false);
   const [errors, setErrors] = useState(0);
   const [errorPercentage, setErrorPercentage] = useState(0);
-  const[accuracy,setAccuracy]=useState(0);
-  const[progressPercentage,setProgressPercentage]=useState(0);
+  const [accuracy, setAccuracy] = useState(0);
+  const [progressPercentage, setProgressPercentage] = useState(0);
+  const [wpm, setWpm] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(60);
 
   // Static UI data for display
-  const sampleText = "The quick brown.";
-  const wpm = 45;
-  const timeElapsed = 25;
+  const sampleText = "Navneet Shukla is Good Boy.";
   const isActive = true;
   const isMobile = false;
 
-  // Static performance data
-  const performance = {
-    level: "Intermediate",
-    color: "text-green-600",
-    bg: "bg-green-50",
+  const CountdownTimer = () => {
+    useEffect(() => {
+      if (timeLeft === 0) return;
+      if (isCompleted) return;
+      const timer = setInterval(() => {
+        setTimeLeft((prevTime) => prevTime - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }, [timeLeft]);
   };
+
+  // Static performance data
+  // const performance = {
+  //   level: "Intermediate",
+  //   color: "text-green-600",
+  //   bg: "bg-green-50",
+  // };
 
   const startTyping = (event) => {
     if (disabled) {
       event.preventDefault();
       return;
     }
-
     const newInput = event.target.value;
     setUserInput(newInput);
 
@@ -58,24 +68,31 @@ const TypingTestUI = () => {
 
     // Calculate accuracy percentage
     const correctCharacters = totalCharactersTyped - newErrors;
-    const calculatedAccuracy = totalCharactersTyped > 0 
-      ? Math.round((correctCharacters / totalCharactersTyped) * 100)
-      : 100;
+    const calculatedAccuracy =
+      totalCharactersTyped > 0
+        ? Math.round((correctCharacters / totalCharactersTyped) * 100)
+        : 100;
 
     // Calculate progress percentage
-    const calculatedProgress = Math.round((totalCharactersTyped / sampleText.length) * 100);
+    const calculatedProgress = Math.round(
+      (totalCharactersTyped / sampleText.length) * 100
+    );
 
     setErrorPercentage(calculatedErrorPercentage);
     setAccuracy(calculatedAccuracy);
     setProgressPercentage(calculatedProgress);
     setCurrentIndex(currentIndex + 1);
+    setWpm(Math.floor((currentIndex + 1 - errors) / (60 - timeLeft)) * 60);
 
     if (currentIndex >= sampleText.length - 1) {
       setIsCompleted(true);
       setDisabled(true);
+      setTimeLeft(timeLeft);
       return;
     }
   };
+
+  CountdownTimer();
 
   const disableBackspaceKey = (e) => {
     if (e.key === "Backspace" || disabled) {
@@ -94,6 +111,8 @@ const TypingTestUI = () => {
     setAccuracy(0);
     setErrorPercentage(0);
     setProgressPercentage(0);
+    setWpm(0);
+    setTimeLeft(60);
   };
 
   // Render text with color coding (UI only)
@@ -152,8 +171,8 @@ const TypingTestUI = () => {
             {isActive && (
               <div className="flex items-center gap-1 bg-slate-800 px-2 py-1 md:px-3 md:py-1 rounded-full text-slate-300 text-xs">
                 <Timer className="w-3 h-3 md:w-4 md:h-4" />
-                {Math.floor(timeElapsed / 60)}:
-                {(timeElapsed % 60).toString().padStart(2, "0")}
+                {Math.floor(timeLeft / 60)}:
+                {(timeLeft % 60).toString().padStart(2, "0")}
               </div>
             )}
           </div>
@@ -347,15 +366,15 @@ const TypingTestUI = () => {
               <div className="bg-slate-800/50 rounded p-1 md:p-1 backdrop-blur">
                 <div className="text-slate-400 font-medium text-xs">Time</div>
                 <div className="text-sm md:text-base font-bold text-white">
-                  {timeElapsed}s
+                  {60 - timeLeft}s
                 </div>
               </div>
             </div>
-            <div
+            {/* <div
               className={`px-2 py-1 rounded-full ${performance.bg} ${performance.color} font-bold text-xs inline-block`}
             >
               {performance.level} Level Achieved!
-            </div>
+            </div> */}
           </div>
         )}
       </div>
