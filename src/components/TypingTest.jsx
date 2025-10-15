@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   RotateCcw,
   Play,
@@ -29,7 +30,10 @@ const TypingTestUI = () => {
 
   const CountdownTimer = () => {
     useEffect(() => {
-      if (timeLeft === 0) return;
+      if (timeLeft === 0) {
+        handleSubmit();
+        return;
+      }
       if (isCompleted) return;
       const timer = setInterval(() => {
         setTimeLeft((prevTime) => prevTime - 1);
@@ -38,12 +42,32 @@ const TypingTestUI = () => {
     }, [timeLeft]);
   };
 
-  // Static performance data
-  // const performance = {
-  //   level: "Intermediate",
-  //   color: "text-green-600",
-  //   bg: "bg-green-50",
-  // };
+  const handleSubmit = async (e) => {
+    console.log("backend api is hit");
+    if (e && e.preventDefault) e.preventDefault();
+    const reqData = {
+      wpm: wpm,
+      totalErrors: errors,
+      typedWords: currentIndex + 1,
+      totalWords: sampleText.length,
+      totalTime: 60,
+      timeTakenByUser: 60 - timeLeft,
+    };
+
+    try {
+      const { data } = await axios.post(
+        "http://localhost:8080/api/typing",
+        reqData,
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+      console.log(`✅ Success: ${JSON.stringify(data)}`);
+    } catch (error) {
+      console.error("Error sending data:", error);
+    }
+  };
 
   const startTyping = (event) => {
     if (disabled) {
@@ -103,6 +127,7 @@ const TypingTestUI = () => {
 
   const reset = () => {
     console.log("Reset button is clicked");
+    handleSubmit();
     setUserInput("");
     setCurrentIndex(0);
     setIsCompleted(false);
@@ -370,11 +395,6 @@ const TypingTestUI = () => {
                 </div>
               </div>
             </div>
-            {/* <div
-              className={`px-2 py-1 rounded-full ${performance.bg} ${performance.color} font-bold text-xs inline-block`}
-            >
-              {performance.level} Level Achieved!
-            </div> */}
           </div>
         )}
       </div>
