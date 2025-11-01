@@ -1,18 +1,34 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { Link } from "react-router-dom"; // Import Link
+const apiUrl=import.meta.env.VITE_API_BASE_URL
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const onFormSubmit = (e) => {
+  const onFormSubmit=async (e)=>{
     e.preventDefault();
-    console.log("Login - Email:", email);
-    console.log("Password:", password);
-    // Reset form
-    setEmail("");
-    setPassword("");
-  };
+    const url=`${apiUrl}/auth/signin`
+    console.log("URL is ",url)
+    try {
+        const response=await axios.post(url,
+            {
+                email,
+                password
+            },{
+                withCredentials:true
+            }
+        );
+        console.log("Login success ",response)
+        setEmail("");
+        setPassword("");
+        
+    } catch (error) {
+        console.error("Login error:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Login failed");
+    }
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4">

@@ -1,21 +1,40 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom"; // Import Link
+const apiUrl=import.meta.env.VITE_API_BASE_URL
+import axios from "axios";
+
+
 
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const onFormSubmit = (e) => {
+    const onFormSubmit=async (e)=>{
     e.preventDefault();
-    console.log("Signup - Name:", name);
-    console.log("Email:", email);
-    console.log("Password:", password);
-    // Reset form
-    setName("");
-    setEmail("");
-    setPassword("");
-  };
+    const url=`${apiUrl}/auth/signup`
+    console.log("URL is ",url)
+    try {
+        const response=await axios.post(url,
+            {
+                name,
+                email,
+                password
+            },
+            {
+                withCredentials:true
+            }
+        );
+        console.log("Register success ",response)
+        setName("");
+        setEmail("");
+        setPassword("");
+        
+    } catch (error) {
+        console.error("Register error:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "SignUp failed");
+    }
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4">
