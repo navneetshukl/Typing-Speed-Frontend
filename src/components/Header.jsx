@@ -16,7 +16,7 @@ const Header = ({ user }) => {
         <div className="flex justify-between h-16 items-center">
           {/* Logo / App Name */}
           <div className="flex-shrink-0 font-bold text-xl cursor-pointer">
-            <Link to="/">TypingSpeedApp</Link>
+            <Link to="/">TypeMaster Pro</Link>
           </div>
 
           {/* Navigation Links */}
