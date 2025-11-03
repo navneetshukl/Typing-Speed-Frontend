@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 import axios from "axios";
 import {
   RotateCcw,
@@ -12,6 +15,15 @@ import {
 } from "lucide-react";
 
 const TypingTestUI = () => {
+  const token = localStorage.getItem("access_token");
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!token) {
+      toast.error("User not authorised", { toastId: "unauthorized" });
+      navigate("/login", { replace: true });
+    }
+  }, [token, navigate]);
+
   const [userInput, setUserInput] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);

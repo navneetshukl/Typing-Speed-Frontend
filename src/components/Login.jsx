@@ -1,9 +1,14 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { Link } from "react-router-dom"; // Import Link
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+
 const apiUrl=import.meta.env.VITE_API_BASE_URL
 
 const Login = () => {
+    const navigate = useNavigate();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -20,15 +25,15 @@ const Login = () => {
                 withCredentials:true
             }
         );
-        console.log("Login success ",response)
-        console.log("Token is ",response.data.access_token);
         localStorage.setItem("access_token",response.data.access_token)
+        navigate("/typing", { replace: true });
+        toast.success("login successfull");
         setEmail("");
         setPassword("");
         
     } catch (error) {
         console.error("Login error:", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Login failed");
+      toast.error(error.response?.data?.message || "Login failed");
     }
   }
 

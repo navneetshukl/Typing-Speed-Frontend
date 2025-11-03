@@ -4,6 +4,8 @@ import Signup from "./components/Signup";
 import Login from "./components/Login";
 import Header from "./components/Header";
 import TypingTestUI from "./components/TypingTest";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 function App() {
@@ -20,6 +22,17 @@ function App() {
 
       <Route path="*" element={<div className="p-8 text-center">Page not found</div>} />
     </Routes>
+    <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false} 
+        newestOnTop={false} 
+        closeOnClick 
+        rtl={false} 
+        pauseOnFocusLoss 
+        draggable 
+        pauseOnHover 
+      />
     </>
   );
 }
