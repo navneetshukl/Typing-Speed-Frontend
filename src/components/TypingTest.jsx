@@ -58,7 +58,7 @@ const TypingTestUI = () => {
     if (e && e.preventDefault) e.preventDefault();
 
     // 2. Access the environment variable (Best Practice in Vite)
-    const BASE_URL = import.meta.env.VITE_API_URL;
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     // 3. Construct the request body
     const reqData = {
@@ -71,15 +71,12 @@ const TypingTestUI = () => {
     };
 
     try {
-      // 4. Use template literals for cleaner URL construction
-      const url = `${BASE_URL}/typing`;
+      const url = `${BASE_URL}/api/typing`;
+      console.log("URL is ",url)
 
       const { data } = await axios.post(url, reqData);
-
-      // 5. Use console.log for success
       console.log(`✅ Success: Data sent. Response: ${JSON.stringify(data)}`);
     } catch (error) {
-      // 6. Use console.error for clear error logging
       console.error(
         "❌ Error sending data:",
         error.response ? error.response.data : error.message
