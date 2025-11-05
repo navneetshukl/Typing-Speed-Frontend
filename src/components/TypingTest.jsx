@@ -68,13 +68,19 @@ const TypingTestUI = () => {
       totalWords: sampleText.length,
       totalTime: 60,
       timeTakenByUser: 60 - timeLeft,
+      userId:"user1",
+    };
+
+    const headers = {
+      "Content-Type": "application/json",
+      "Authorization": token,
     };
 
     try {
       const url = `${BASE_URL}/api/typing`;
       console.log("URL is ",url)
 
-      const { data } = await axios.post(url, reqData);
+      const { data } = await axios.post(url, reqData,{headers});
       console.log(`✅ Success: Data sent. Response: ${JSON.stringify(data)}`);
     } catch (error) {
       console.error(
