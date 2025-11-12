@@ -22,7 +22,7 @@ const TypingTestUI = () => {
       toast.error("User not authorised", { toastId: "unauthorized" });
       navigate("/login", { replace: true });
     }
-  }, [token, navigate]);
+  }, []);
 
   const [userInput, setUserInput] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);

@@ -1,7 +1,17 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend } from "recharts";
 
 export default function Profile() {
+  const token = localStorage.getItem("access_token");
+    const navigate = useNavigate();
+    useEffect(() => {
+      if (!token) {
+        toast.error("User not authorised", { toastId: "unauthorized" });
+        navigate("/login", { replace: true });
+      }
+    }, []);
   const [selectedPeriod, setSelectedPeriod] = useState("1month");
   const [selectedMetrics, setSelectedMetrics] = useState(["wpm", "accuracy"]);
   const [scrollPosition, setScrollPosition] = useState(0);

@@ -1,6 +1,15 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 export default function Dashboard() {
+  const token = localStorage.getItem("access_token");
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!token) {
+      toast.error("User not authorised", { toastId: "unauthorized" });
+      navigate("/login", { replace: true });
+    }
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("speed");
   const [currentPage, setCurrentPage] = useState(1);
@@ -229,12 +238,18 @@ export default function Dashboard() {
     setCurrentPage(1);
   };
 
-  const avgSpeedAll = Math.round(users.reduce((sum, user) => sum + user.avgSpeed, 0) / users.length);
-  const avgAccuracyAll = Math.round(users.reduce((sum, user) => sum + user.accuracy, 0) / users.length);
+  const avgSpeedAll = Math.round(
+    users.reduce((sum, user) => sum + user.avgSpeed, 0) / users.length
+  );
+  const avgAccuracyAll = Math.round(
+    users.reduce((sum, user) => sum + user.accuracy, 0) / users.length
+  );
   const totalTestsAll = users.reduce((sum, user) => sum + user.testsTaken, 0);
 
   const StatCard = ({ label, value, icon, color }) => (
-    <div className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-purple-500/20 ${color}`}>
+    <div
+      className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-purple-500/20 ${color}`}
+    >
       <div className="flex items-start justify-between">
         <div>
           <p className="text-gray-400 text-sm mb-1">{label}</p>
@@ -255,7 +270,9 @@ export default function Dashboard() {
               <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 Dashboard
               </h1>
-              <p className="text-gray-400 text-sm mt-1">User Performance Overview</p>
+              <p className="text-gray-400 text-sm mt-1">
+                User Performance Overview
+              </p>
             </div>
             <div className="relative">
               <input
@@ -265,7 +282,9 @@ export default function Dashboard() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-white/10 border border-purple-500/30 rounded-lg px-4 py-2 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white w-64"
               />
-              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">🔍</span>
+              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                🔍
+              </span>
             </div>
           </div>
         </div>
@@ -351,17 +370,39 @@ export default function Dashboard() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-purple-500/20 bg-white/5">
-                  <th className="text-left py-4 px-4 font-bold text-purple-300 whitespace-nowrap">Rank</th>
-                  <th className="text-left py-4 px-4 font-bold text-purple-300 whitespace-nowrap">User</th>
-                  <th className="text-left py-4 px-4 font-bold text-purple-300 whitespace-nowrap">Email</th>
-                  <th className="text-center py-4 px-4 font-bold text-purple-300 whitespace-nowrap">Current Speed</th>
-                  <th className="text-center py-4 px-4 font-bold text-purple-300 whitespace-nowrap">Avg Speed</th>
-                  <th className="text-center py-4 px-4 font-bold text-purple-300 whitespace-nowrap">Accuracy</th>
-                  <th className="text-center py-4 px-4 font-bold text-purple-300 whitespace-nowrap">Tests</th>
-                  <th className="text-center py-4 px-4 font-bold text-purple-300 whitespace-nowrap">Streak</th>
-                  <th className="text-left py-4 px-4 font-bold text-purple-300 whitespace-nowrap">Level</th>
-                  <th className="text-left py-4 px-4 font-bold text-purple-300 whitespace-nowrap">Last Test</th>
-                  <th className="text-left py-4 px-4 font-bold text-purple-300 whitespace-nowrap">Join Date</th>
+                  <th className="text-left py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
+                    Rank
+                  </th>
+                  <th className="text-left py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
+                    User
+                  </th>
+                  <th className="text-left py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
+                    Email
+                  </th>
+                  <th className="text-center py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
+                    Current Speed
+                  </th>
+                  <th className="text-center py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
+                    Avg Speed
+                  </th>
+                  <th className="text-center py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
+                    Accuracy
+                  </th>
+                  <th className="text-center py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
+                    Tests
+                  </th>
+                  <th className="text-center py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
+                    Streak
+                  </th>
+                  <th className="text-left py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
+                    Level
+                  </th>
+                  <th className="text-left py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
+                    Last Test
+                  </th>
+                  <th className="text-left py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
+                    Join Date
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -382,10 +423,16 @@ export default function Dashboard() {
                                 : "text-orange-400"
                             }`}
                           >
-                            {user.rank === 1 ? "🥇" : user.rank === 2 ? "🥈" : "🥉"}
+                            {user.rank === 1
+                              ? "🥇"
+                              : user.rank === 2
+                              ? "🥈"
+                              : "🥉"}
                           </span>
                         ) : (
-                          <span className="text-purple-400 font-bold">#{user.rank}</span>
+                          <span className="text-purple-400 font-bold">
+                            #{user.rank}
+                          </span>
                         )}
                       </div>
                     </td>
@@ -396,15 +443,23 @@ export default function Dashboard() {
                           alt={user.name}
                           className="w-8 h-8 rounded-full border border-purple-500/50"
                         />
-                        <span className="font-medium text-white">{user.name}</span>
+                        <span className="font-medium text-white">
+                          {user.name}
+                        </span>
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-gray-400 text-xs">{user.email}</td>
-                    <td className="py-4 px-4">
-                      <span className="block text-center font-bold text-blue-400">{user.speed} WPM</span>
+                    <td className="py-4 px-4 text-gray-400 text-xs">
+                      {user.email}
                     </td>
                     <td className="py-4 px-4">
-                      <span className="block text-center font-medium text-purple-300">{user.avgSpeed} WPM</span>
+                      <span className="block text-center font-bold text-blue-400">
+                        {user.speed} WPM
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="block text-center font-medium text-purple-300">
+                        {user.avgSpeed} WPM
+                      </span>
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center justify-center gap-2">
@@ -414,18 +469,24 @@ export default function Dashboard() {
                             style={{ width: `${user.accuracy}%` }}
                           ></div>
                         </div>
-                        <span className="text-green-400 font-bold text-sm">{user.accuracy}%</span>
+                        <span className="text-green-400 font-bold text-sm">
+                          {user.accuracy}%
+                        </span>
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <span className="block text-center font-medium text-purple-300">{user.testsTaken}</span>
+                      <span className="block text-center font-medium text-purple-300">
+                        {user.testsTaken}
+                      </span>
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center justify-center gap-1">
                         {user.streak > 0 ? (
                           <>
                             <span className="text-orange-400">🔥</span>
-                            <span className="font-bold text-orange-300">{user.streak}</span>
+                            <span className="font-bold text-orange-300">
+                              {user.streak}
+                            </span>
                           </>
                         ) : (
                           <span className="text-gray-500 text-xs">—</span>
@@ -445,8 +506,12 @@ export default function Dashboard() {
                         {user.level}
                       </span>
                     </td>
-                    <td className="py-4 px-4 text-gray-400 text-sm whitespace-nowrap">{user.lastTest}</td>
-                    <td className="py-4 px-4 text-gray-400 text-sm whitespace-nowrap">{user.joinDate}</td>
+                    <td className="py-4 px-4 text-gray-400 text-sm whitespace-nowrap">
+                      {user.lastTest}
+                    </td>
+                    <td className="py-4 px-4 text-gray-400 text-sm whitespace-nowrap">
+                      {user.joinDate}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -464,7 +529,9 @@ export default function Dashboard() {
         {filteredUsers.length > 0 && (
           <div className="mt-6 flex items-center justify-between">
             <div className="text-gray-400 text-sm">
-              Showing {indexOfFirstUser + 1}-{Math.min(indexOfLastUser, filteredUsers.length)} of {filteredUsers.length} users
+              Showing {indexOfFirstUser + 1}-
+              {Math.min(indexOfLastUser, filteredUsers.length)} of{" "}
+              {filteredUsers.length} users
             </div>
             <div className="flex gap-2">
               <button
@@ -475,19 +542,21 @@ export default function Dashboard() {
                 ← Previous
               </button>
               <div className="flex gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                  <button
-                    key={pageNum}
-                    onClick={() => handlePageChange(pageNum)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      currentPage === pageNum
-                        ? "bg-purple-500 text-white"
-                        : "bg-white/10 border border-purple-500/30 text-white hover:bg-white/20"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (pageNum) => (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        currentPage === pageNum
+                          ? "bg-purple-500 text-white"
+                          : "bg-white/10 border border-purple-500/30 text-white hover:bg-white/20"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  )
+                )}
               </div>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
