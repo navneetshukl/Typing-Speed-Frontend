@@ -21,3 +21,9 @@ export const calculateAccuracy = (typedWords, totalErrors) => {
 
   return Math.max(0, accuracy.toFixed(2)); // avoid negative values
 };
+
+export const calculateCompletion = (typedWords, totalWords) => {
+  if (!totalWords || totalWords === 0) return 0;
+
+  return ((typedWords / totalWords) * 100).toFixed(2); // %
+};

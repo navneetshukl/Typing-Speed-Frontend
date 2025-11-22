@@ -3,7 +3,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
-import { formatDate,calculateAccuracy } from "../helpers/helper";
+import {
+  formatDate,
+  calculateAccuracy,
+  calculateCompletion,
+} from "../helpers/helper";
 import {
   LineChart,
   Line,
@@ -15,13 +19,11 @@ import {
   Legend,
 } from "recharts";
 
-
 export default function Profile() {
   const [selectedPeriod, setSelectedPeriod] = useState("1month");
   const [selectedMetrics, setSelectedMetrics] = useState(["wpm", "accuracy"]);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [testHistory, setTestHistory] = useState([]);
-
 
   const fetchRecentTest = async () => {
     const url = `${apiUrl}/dashboard/recentTest`;
@@ -51,10 +53,9 @@ export default function Profile() {
     fetchRecentTest();
   }, []);
 
-//   useEffect(() => {
-//   console.log("testHistory updated:", testHistory);
-// }, [testHistory]);
-  
+  //   useEffect(() => {
+  //   console.log("testHistory updated:", testHistory);
+  // }, [testHistory]);
 
   const user = {
     name: "John Doe",
@@ -258,25 +259,26 @@ export default function Profile() {
                     <th className="text-left py-4 px-4 font-bold text-purple-300 text-xs sm:text-sm whitespace-nowrap">
                       Errors
                     </th>
+                    <th className="text-left py-4 px-4 font-bold text-purple-300 text-xs sm:text-sm whitespace-nowrap">
+                      Completion
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {testHistory.map((test, index) => (
-                    
                     <tr
                       key={index}
                       className="border-b border-purple-500/10 hover:bg-white/5 transition-colors duration-150"
                     >
                       <td className="py-4 px-4 text-gray-300 text-xs sm:text-sm font-medium whitespace-nowrap">
-                         {formatDate(test.createdAt)}
+                        {formatDate(test.createdAt)}
                       </td>
                       <td className="py-4 px-4 font-bold text-blue-400 text-xs sm:text-sm whitespace-nowrap">
                         {test.wpm} WPM
                       </td>
                       <td className="py-4 px-4 font-bold text-green-400 text-xs sm:text-sm whitespace-nowrap">
                         {/* {test.typedWords}% */}
-                          {calculateAccuracy(test.typedWords, test.totalErrors)}%
-
+                        {calculateAccuracy(test.typedWords, test.totalErrors)}%
                       </td>
                       <td className="py-4 px-4 text-gray-400 text-xs sm:text-sm whitespace-nowrap">
                         {test.timeTakenByUser} sec
@@ -292,6 +294,26 @@ export default function Profile() {
                           }`}
                         >
                           {test.totalErrors}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 text-xs sm:text-sm whitespace-nowrap w-40">
+                        <div className="w-full bg-gray-600/30 rounded-full h-2 mb-1">
+                          <div
+                            className="bg-purple-500 h-2 rounded-full"
+                            style={{
+                              width: `${calculateCompletion(
+                                test.typedWords,
+                                test.totalWords
+                              )}%`,
+                            }}
+                          ></div>
+                        </div>
+                        <span className="text-gray-300 text-xs">
+                          {calculateCompletion(
+                            test.typedWords,
+                            test.totalWords
+                          )}
+                          %
                         </span>
                       </td>
                     </tr>
