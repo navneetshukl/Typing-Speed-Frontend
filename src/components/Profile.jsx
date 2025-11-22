@@ -7,6 +7,7 @@ import {
   formatDate,
   calculateAccuracy,
   calculateCompletion,
+  getAvatar,
 } from "../helpers/helper";
 import {
   LineChart,
@@ -24,7 +25,9 @@ export default function Profile() {
   const [selectedMetrics, setSelectedMetrics] = useState(["wpm", "accuracy"]);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [testHistory, setTestHistory] = useState([]);
+  const [user, setUser] = useState({});
 
+  // fetch the data for recent test of users
   const fetchRecentTest = async () => {
     const url = `${apiUrl}/dashboard/recentTest`;
 
@@ -43,6 +46,22 @@ export default function Profile() {
     }
   };
 
+  // fetch the users data
+  const fetchUsersData = async () => {
+    const url = `${apiUrl}/api/userData`;
+
+    try {
+      const response = await axios.get(url, {
+        withCredentials: true,
+      });
+
+      setUser(response.data.data);
+    } catch (error) {
+      console.error("Users Data error:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Users Data failed");
+    }
+  };
+
   const token = localStorage.getItem("access_token");
   const navigate = useNavigate();
   useEffect(() => {
@@ -51,23 +70,8 @@ export default function Profile() {
       navigate("/login", { replace: true });
     }
     fetchRecentTest();
+    fetchUsersData();
   }, []);
-
-  //   useEffect(() => {
-  //   console.log("testHistory updated:", testHistory);
-  // }, [testHistory]);
-
-  const user = {
-    name: "John Doe",
-    email: "john@example.com",
-    avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=JohnDoe",
-    speed: 92,
-    accuracy: 96,
-    testsTaken: 128,
-    bestSpeed: 118,
-    joinDate: "March 2023",
-    improvement: "+12%",
-  };
 
   // Data for different time periods
   const chartData = {
@@ -164,7 +168,7 @@ export default function Profile() {
               <div className="relative flex-shrink-0">
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur-lg opacity-75 animate-pulse"></div>
                 <img
-                  src={user.avatar}
+                  src={getAvatar(user.name)}
                   alt="Profile"
                   className="relative w-16 h-16 rounded-full border-3 border-purple-400 shadow-xl"
                 />
@@ -179,9 +183,11 @@ export default function Profile() {
               </div>
             </div>
             <div className="text-right flex-shrink-0">
-              <p className="text-xs text-gray-500">Since {user.joinDate}</p>
+              <p className="text-xs text-gray-500">
+                Since {formatDate(user.createdAt)}
+              </p>
               <p className="text-base sm:text-lg font-semibold text-green-400">
-                {user.testsTaken} tests ✓
+                {user.totalTest} tests ✓
               </p>
             </div>
           </div>
@@ -194,8 +200,8 @@ export default function Profile() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             icon="⚡"
-            label="Current Speed"
-            value={`${user.speed}`}
+            label="Average Speed"
+            value={`${user.avgSpeed}`}
             sublabel="WPM"
             color="bg-gradient-to-br from-blue-600 to-blue-800"
             trend={user.improvement}
@@ -203,7 +209,7 @@ export default function Profile() {
           <StatCard
             icon="🎯"
             label="Accuracy"
-            value={`${user.accuracy}%`}
+            value={`${user.avgAccuracy}%`}
             sublabel="Precision typing"
             color="bg-gradient-to-br from-green-600 to-emerald-800"
           />
@@ -216,8 +222,8 @@ export default function Profile() {
           />
           <StatCard
             icon="📈"
-            label="Consistency"
-            value="94%"
+            label="Performance"
+            value={user.avgPerformance}
             sublabel="Avg performance"
             color="bg-gradient-to-br from-orange-600 to-red-800"
           />

@@ -27,3 +27,7 @@ export const calculateCompletion = (typedWords, totalWords) => {
 
   return ((typedWords / totalWords) * 100).toFixed(2); // %
 };
+
+export const getAvatar = (seed) =>{
+  return `https://api.dicebear.com/9.x/adventurer/svg?seed=${seed}`;
+}
