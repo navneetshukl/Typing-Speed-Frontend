@@ -1,20 +1,60 @@
-import React, { useState ,useEffect} from "react";
+import axios from "axios";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend } from "recharts";
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
+import { formatDate,calculateAccuracy } from "../helpers/helper";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+
 
 export default function Profile() {
-  const token = localStorage.getItem("access_token");
-    const navigate = useNavigate();
-    useEffect(() => {
-      if (!token) {
-        toast.error("User not authorised", { toastId: "unauthorized" });
-        navigate("/login", { replace: true });
-      }
-    }, []);
   const [selectedPeriod, setSelectedPeriod] = useState("1month");
   const [selectedMetrics, setSelectedMetrics] = useState(["wpm", "accuracy"]);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [testHistory, setTestHistory] = useState([]);
+
+
+  const fetchRecentTest = async () => {
+    const url = `${apiUrl}/dashboard/recentTest`;
+
+    try {
+      const response = await axios.get(url, {
+        withCredentials: true,
+      });
+
+      setTestHistory(response.data.data);
+    } catch (error) {
+      console.error(
+        "GetRecentTest error:",
+        error.response?.data || error.message
+      );
+      alert(error.response?.data?.message || "Recent test failed");
+    }
+  };
+
+  const token = localStorage.getItem("access_token");
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!token) {
+      toast.error("User not authorised", { toastId: "unauthorized" });
+      navigate("/login", { replace: true });
+    }
+    fetchRecentTest();
+  }, []);
+
+//   useEffect(() => {
+//   console.log("testHistory updated:", testHistory);
+// }, [testHistory]);
+  
 
   const user = {
     name: "John Doe",
@@ -58,19 +98,6 @@ export default function Profile() {
     ],
   };
 
-  const testHistory = [
-    { date: "Oct 29", wpm: 75, accuracy: 89, duration: "2m", mistakes: 6 },
-    { date: "Oct 30", wpm: 82, accuracy: 92, duration: "1m 55s", mistakes: 4 },
-    { date: "Oct 31", wpm: 88, accuracy: 94, duration: "1m 40s", mistakes: 3 },
-    { date: "Nov 1", wpm: 90, accuracy: 95, duration: "1m 42s", mistakes: 2 },
-    { date: "Nov 2", wpm: 85, accuracy: 91, duration: "1m 58s", mistakes: 4 },
-    { date: "Nov 3", wpm: 92, accuracy: 96, duration: "1m 37s", mistakes: 2 },
-    { date: "Nov 4", wpm: 96, accuracy: 97, duration: "1m 35s", mistakes: 1 },
-    { date: "Nov 5", wpm: 94, accuracy: 96, duration: "1m 38s", mistakes: 2 },
-    { date: "Nov 6", wpm: 98, accuracy: 98, duration: "1m 32s", mistakes: 0 },
-    { date: "Nov 7", wpm: 93, accuracy: 95, duration: "1m 45s", mistakes: 2 },
-  ];
-
   const topPerformers = [
     { name: "Alice", score: 145 },
     { name: "Bob", score: 138 },
@@ -83,7 +110,9 @@ export default function Profile() {
   ];
 
   const StatCard = ({ icon, label, value, sublabel, color, trend }) => (
-    <div className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg backdrop-blur-md transition-all hover:scale-105 group ${color}`}>
+    <div
+      className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg backdrop-blur-md transition-all hover:scale-105 group ${color}`}
+    >
       <div className="absolute -right-8 -top-8 text-6xl opacity-15 group-hover:opacity-25 transition-opacity font-bold">
         {icon}
       </div>
@@ -197,13 +226,20 @@ export default function Profile() {
         <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-purple-500/20 shadow-2xl overflow-hidden">
           <div className="flex items-center gap-3 mb-6">
             <span className="text-2xl">⏱️</span>
-            <h2 className="text-lg sm:text-xl font-bold text-white">Recent Tests</h2>
-            <span className="ml-auto text-xs text-gray-400">({testHistory.length} tests)</span>
+            <h2 className="text-lg sm:text-xl font-bold text-white">
+              Recent Tests
+            </h2>
+            <span className="ml-auto text-xs text-gray-400">
+              ({testHistory.length} tests)
+            </span>
           </div>
-          
+
           {/* Scrollable Table Container */}
           <div className="relative">
-            <div className="overflow-x-auto rounded-xl" onScroll={handleTableScroll}>
+            <div
+              className="overflow-x-auto rounded-xl"
+              onScroll={handleTableScroll}
+            >
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-purple-500/30 sticky top-0 bg-white/5">
@@ -226,33 +262,36 @@ export default function Profile() {
                 </thead>
                 <tbody>
                   {testHistory.map((test, index) => (
+                    
                     <tr
                       key={index}
                       className="border-b border-purple-500/10 hover:bg-white/5 transition-colors duration-150"
                     >
                       <td className="py-4 px-4 text-gray-300 text-xs sm:text-sm font-medium whitespace-nowrap">
-                        {test.date}
+                         {formatDate(test.createdAt)}
                       </td>
                       <td className="py-4 px-4 font-bold text-blue-400 text-xs sm:text-sm whitespace-nowrap">
                         {test.wpm} WPM
                       </td>
                       <td className="py-4 px-4 font-bold text-green-400 text-xs sm:text-sm whitespace-nowrap">
-                        {test.accuracy}%
+                        {/* {test.typedWords}% */}
+                          {calculateAccuracy(test.typedWords, test.totalErrors)}%
+
                       </td>
                       <td className="py-4 px-4 text-gray-400 text-xs sm:text-sm whitespace-nowrap">
-                        {test.duration}
+                        {test.timeTakenByUser} sec
                       </td>
                       <td className="py-4 px-4 whitespace-nowrap">
                         <span
                           className={`inline-block px-3 py-1.5 rounded-full text-xs font-bold ${
-                            test.mistakes <= 2
+                            test.totalErrors <= 2
                               ? "bg-green-600/40 text-green-300 border border-green-500/30"
-                              : test.mistakes <= 4
+                              : test.totalErrors <= 4
                               ? "bg-yellow-600/40 text-yellow-300 border border-yellow-500/30"
                               : "bg-red-600/40 text-red-300 border border-red-500/30"
                           }`}
                         >
-                          {test.mistakes}
+                          {test.totalErrors}
                         </span>
                       </td>
                     </tr>
@@ -260,7 +299,7 @@ export default function Profile() {
                 </tbody>
               </table>
             </div>
-            
+
             {/* Scroll Indicator */}
             {scrollPosition === 0 && testHistory.length > 3 && (
               <div className="absolute right-0 top-1/2 transform -translate-y-1/2 pointer-events-none">
@@ -281,7 +320,9 @@ export default function Profile() {
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-2xl">📊</span>
-                <h2 className="text-lg sm:text-xl font-bold text-white">Performance Analytics</h2>
+                <h2 className="text-lg sm:text-xl font-bold text-white">
+                  Performance Analytics
+                </h2>
               </div>
 
               {/* Time Period Selection */}
@@ -307,7 +348,9 @@ export default function Profile() {
 
               {/* Metric Selection */}
               <div className="space-y-3">
-                <p className="text-xs font-semibold text-gray-400 uppercase">Select Metrics</p>
+                <p className="text-xs font-semibold text-gray-400 uppercase">
+                  Select Metrics
+                </p>
                 <div className="flex flex-wrap gap-3">
                   {Object.entries(metricConfig).map(([key, config]) => (
                     <button
@@ -329,27 +372,55 @@ export default function Profile() {
             {/* Chart */}
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={currentData} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
+                <LineChart
+                  data={currentData}
+                  margin={{ top: 5, right: 30, left: -20, bottom: 5 }}
+                >
                   <defs>
                     <linearGradient id="colorWpm" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.8} />
                       <stop offset="95%" stopColor="#7C3AED" stopOpacity={0} />
                     </linearGradient>
-                    <linearGradient id="colorAccuracy" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient
+                      id="colorAccuracy"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
                       <stop offset="5%" stopColor="#10B981" stopOpacity={0.8} />
                       <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                     </linearGradient>
-                    <linearGradient id="colorMistakes" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient
+                      id="colorMistakes"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
                       <stop offset="5%" stopColor="#EF4444" stopOpacity={0.8} />
                       <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
                     </linearGradient>
-                    <linearGradient id="colorConsistency" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient
+                      id="colorConsistency"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
                       <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.8} />
                       <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(168, 85, 247, 0.1)" />
-                  <XAxis dataKey="date" stroke="#9CA3AF" style={{ fontSize: "12px" }} />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(168, 85, 247, 0.1)"
+                  />
+                  <XAxis
+                    dataKey="date"
+                    stroke="#9CA3AF"
+                    style={{ fontSize: "12px" }}
+                  />
                   <YAxis stroke="#9CA3AF" style={{ fontSize: "12px" }} />
                   <Tooltip
                     contentStyle={{
@@ -417,7 +488,9 @@ export default function Profile() {
           <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-purple-500/20 shadow-2xl flex flex-col">
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl">🥇</span>
-              <h2 className="text-lg sm:text-xl font-bold text-white">Top Performers</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-white">
+                Top Performers
+              </h2>
             </div>
             <div className="space-y-2 overflow-y-auto pr-2 flex-1">
               {topPerformers.map((player, index) => (
