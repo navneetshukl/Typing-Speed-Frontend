@@ -31,3 +31,35 @@ export const calculateCompletion = (typedWords, totalWords) => {
 export const getAvatar = (seed) =>{
   return `https://api.dicebear.com/9.x/adventurer/svg?seed=${seed}`;
 }
+
+export const formatDateShort = (dateStr) => {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-US", {
+    month: "short", // Nov
+    day: "numeric", // 23
+  });
+};
+
+
+export const transformChartData = (tests) => {
+  return tests.map(test => {
+    const accuracy =
+      test.typedWords > 0
+        ? Math.round(((test.typedWords - test.totalErrors) / test.typedWords) * 100)
+        : 0;
+
+    const consistency =
+      test.totalWords > 0
+        ? Math.round(((test.typedWords - test.totalErrors) / test.totalWords) * 100)
+        : 0;
+
+    return {
+      date: formatDateShort(test.createdAt),
+      wpm: test.wpm,
+      accuracy,
+      mistakes: test.totalErrors,
+      consistency,
+    };
+  });
+};
+

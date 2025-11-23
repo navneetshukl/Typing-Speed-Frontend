@@ -8,6 +8,7 @@ import {
   calculateAccuracy,
   calculateCompletion,
   getAvatar,
+  transformChartData,
 } from "../helpers/helper";
 import {
   LineChart,
@@ -26,6 +27,14 @@ export default function Profile() {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [testHistory, setTestHistory] = useState([]);
   const [user, setUser] = useState({});
+  const [chartData, setChartData] = useState([]);
+  const [topPerformers, setTopPerformer] = useState([]);
+
+  const periodToMonth = {
+    "1month": 1,
+    "6months": 6,
+    "1year": 12,
+  };
 
   // fetch the data for recent test of users
   const fetchRecentTest = async () => {
@@ -35,8 +44,25 @@ export default function Profile() {
       const response = await axios.get(url, {
         withCredentials: true,
       });
-
       setTestHistory(response.data.data);
+    } catch (error) {
+      console.error(
+        "GetRecentTest error:",
+        error.response?.data || error.message
+      );
+      alert(error.response?.data?.message || "Recent test failed");
+    }
+  };
+
+  const fetchChartData = async (monthValue) => {
+    const url = `${apiUrl}/dashboard/recentTest?month=${monthValue}`;
+    console.log("URL is ", url);
+
+    try {
+      const response = await axios.get(url, { withCredentials: true });
+      console.log("Response is ", response);
+      const formatted = transformChartData(response.data.data);
+      setChartData(formatted);
     } catch (error) {
       console.error(
         "GetRecentTest error:",
@@ -62,6 +88,21 @@ export default function Profile() {
     }
   };
 
+  const fetchTopPerformer = async () => {
+    const url = `${apiUrl}/api/topPerformer`;
+
+    try {
+      const response = await axios.get(url, {
+        withCredentials: true,
+      });
+
+      setTopPerformer(response.data.data);
+    } catch (error) {
+      console.error("Users Data error:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Users Data failed");
+    }
+  };
+
   const token = localStorage.getItem("access_token");
   const navigate = useNavigate();
   useEffect(() => {
@@ -71,48 +112,17 @@ export default function Profile() {
     }
     fetchRecentTest();
     fetchUsersData();
+    fetchTopPerformer();
   }, []);
 
-  // Data for different time periods
-  const chartData = {
-    "1month": [
-      { date: "Oct 29", wpm: 75, accuracy: 89, mistakes: 6, consistency: 78 },
-      { date: "Oct 30", wpm: 82, accuracy: 92, mistakes: 4, consistency: 85 },
-      { date: "Oct 31", wpm: 88, accuracy: 94, mistakes: 3, consistency: 90 },
-      { date: "Nov 1", wpm: 90, accuracy: 95, mistakes: 2, consistency: 92 },
-      { date: "Nov 2", wpm: 85, accuracy: 91, mistakes: 4, consistency: 88 },
-      { date: "Nov 3", wpm: 92, accuracy: 96, mistakes: 2, consistency: 95 },
-      { date: "Nov 4", wpm: 96, accuracy: 97, mistakes: 1, consistency: 98 },
-    ],
-    "6months": [
-      { date: "May 1", wpm: 65, accuracy: 82, mistakes: 8, consistency: 70 },
-      { date: "Jun 1", wpm: 72, accuracy: 85, mistakes: 7, consistency: 75 },
-      { date: "Jul 1", wpm: 78, accuracy: 88, mistakes: 5, consistency: 82 },
-      { date: "Aug 1", wpm: 82, accuracy: 90, mistakes: 4, consistency: 86 },
-      { date: "Sep 1", wpm: 87, accuracy: 93, mistakes: 3, consistency: 91 },
-      { date: "Oct 1", wpm: 92, accuracy: 95, mistakes: 2, consistency: 94 },
-      { date: "Nov 4", wpm: 96, accuracy: 97, mistakes: 1, consistency: 98 },
-    ],
-    "1year": [
-      { date: "Nov 23", wpm: 45, accuracy: 75, mistakes: 12, consistency: 60 },
-      { date: "Feb 24", wpm: 55, accuracy: 80, mistakes: 10, consistency: 68 },
-      { date: "May 24", wpm: 68, accuracy: 85, mistakes: 7, consistency: 78 },
-      { date: "Aug 24", wpm: 80, accuracy: 90, mistakes: 5, consistency: 87 },
-      { date: "Oct 24", wpm: 90, accuracy: 95, mistakes: 2, consistency: 94 },
-      { date: "Nov 24", wpm: 96, accuracy: 97, mistakes: 1, consistency: 98 },
-    ],
-  };
+  useEffect(() => {
+    if (!token) return;
 
-  const topPerformers = [
-    { name: "Alice", score: 145 },
-    { name: "Bob", score: 138 },
-    { name: "John Doe", score: 132 },
-    { name: "Sarah", score: 128 },
-    { name: "Michael", score: 125 },
-    { name: "Ravi", score: 122 },
-    { name: "Linda", score: 119 },
-    { name: "James", score: 116 },
-  ];
+    const monthValue = periodToMonth[selectedPeriod];
+    fetchChartData(monthValue);
+  }, [selectedPeriod]);
+
+
 
   const StatCard = ({ icon, label, value, sublabel, color, trend }) => (
     <div
@@ -145,7 +155,8 @@ export default function Profile() {
     );
   };
 
-  const currentData = chartData[selectedPeriod];
+  //const currentData = chartData[selectedPeriod];
+  const currentData = chartData;
 
   const metricConfig = {
     wpm: { stroke: "#7C3AED", name: "WPM", color: "purple" },
@@ -549,7 +560,7 @@ export default function Profile() {
                     </p>
                   </div>
                   <span className="text-xs text-purple-300 font-bold flex-shrink-0">
-                    {player.score}
+                    {player.performance}
                   </span>
                 </div>
               ))}
