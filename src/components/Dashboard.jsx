@@ -15,6 +15,7 @@ export default function Dashboard() {
   //const [usersPerPage, setUsersPerPage] = useState(10);
 
   const[users,setUsers]=useState([]);
+  const[topData,setTopData]=useState({});
 
   const fetchData=async()=>{
      const url = `${apiUrl}/api/allUser`;
@@ -24,7 +25,8 @@ export default function Dashboard() {
         withCredentials:true,
       });
       console.log("response is ",response)
-      setUsers(response.data.data)
+      setUsers(response.data.data.user);
+      setTopData(response.data.data.dashboardTopData);
       console.log("Users is ",users)
     } catch (error) {
       console.error("Users Data error:", error.response?.data || error.message);
@@ -138,19 +140,19 @@ export default function Dashboard() {
           />
           <StatCard
             label="Avg Speed"
-            // value={`${avgSpeedAll} WPM`}
+             value={`${topData.avgSpeed} WPM`}
             icon="⚡"
             color="hover:shadow-lg hover:shadow-yellow-500/20 transition-all"
           />
           <StatCard
             label="Total Tests"
-            // value={totalTestsAll}
+             value={topData.totalTest}
             icon="✓"
             color="hover:shadow-lg hover:shadow-purple-500/20 transition-all"
           />
           <StatCard
             label="Avg Accuracy"
-            // value={`${avgAccuracyAll}%`}
+             value={`${topData.avgAccuracy}%`}
             icon="🎯"
             color="hover:shadow-lg hover:shadow-orange-500/20 transition-all"
           />
