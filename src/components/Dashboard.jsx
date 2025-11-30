@@ -1,250 +1,88 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
+import {
+  getAvatar,
+  formatDate,
+} from "../helpers/helper";
+
 export default function Dashboard() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("speed");
+  //const [currentPage, setCurrentPage] = useState(1);
+  //const [usersPerPage, setUsersPerPage] = useState(10);
+
+  const[users,setUsers]=useState([]);
+  const[topData,setTopData]=useState({});
+
+  const fetchData=async()=>{
+     const url = `${apiUrl}/api/allUser`;
+    try {
+
+      const response=await axios.get(url,{
+        withCredentials:true,
+      });
+      console.log("response is ",response)
+      setUsers(response.data.data.user);
+      setTopData(response.data.data.dashboardTopData);
+      console.log("Users is ",users)
+    } catch (error) {
+      console.error("Users Data error:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Users Data failed");
+    }
+  }
+
   const token = localStorage.getItem("access_token");
   const navigate = useNavigate();
+
   useEffect(() => {
     if (!token) {
       toast.error("User not authorised", { toastId: "unauthorized" });
       navigate("/login", { replace: true });
     }
+    fetchData();
+   
   }, []);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("speed");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [usersPerPage, setUsersPerPage] = useState(10);
 
-  const users = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=John",
-      speed: 82,
-      accuracy: 94,
-      testsTaken: 18,
-      rank: 5,
-      totalTests: 1200,
-      avgSpeed: 79,
-      streak: 7,
-      joinDate: "Jan 15, 2024",
-      level: "Advanced",
-      lastTest: "2h ago",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Jane",
-      speed: 95,
-      accuracy: 96,
-      testsTaken: 42,
-      rank: 1,
-      totalTests: 2840,
-      avgSpeed: 91,
-      streak: 12,
-      joinDate: "Dec 01, 2023",
-      level: "Expert",
-      lastTest: "30m ago",
-    },
-    {
-      id: 3,
-      name: "Alex Johnson",
-      email: "alex@example.com",
-      avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Alex",
-      speed: 68,
-      accuracy: 87,
-      testsTaken: 15,
-      rank: 12,
-      totalTests: 890,
-      avgSpeed: 65,
-      streak: 3,
-      joinDate: "Feb 20, 2024",
-      level: "Intermediate",
-      lastTest: "1d ago",
-    },
-    {
-      id: 4,
-      name: "Sarah Wilson",
-      email: "sarah@example.com",
-      avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Sarah",
-      speed: 88,
-      accuracy: 92,
-      testsTaken: 28,
-      rank: 3,
-      totalTests: 2100,
-      avgSpeed: 85,
-      streak: 5,
-      joinDate: "Jan 08, 2024",
-      level: "Advanced",
-      lastTest: "5h ago",
-    },
-    {
-      id: 5,
-      name: "Mike Brown",
-      email: "mike@example.com",
-      avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Mike",
-      speed: 72,
-      accuracy: 89,
-      testsTaken: 31,
-      rank: 8,
-      totalTests: 1550,
-      avgSpeed: 70,
-      streak: 0,
-      joinDate: "Mar 10, 2024",
-      level: "Intermediate",
-      lastTest: "3d ago",
-    },
-    {
-      id: 6,
-      name: "Emma Davis",
-      email: "emma@example.com",
-      avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Emma",
-      speed: 91,
-      accuracy: 95,
-      testsTaken: 35,
-      rank: 2,
-      totalTests: 2300,
-      avgSpeed: 88,
-      streak: 10,
-      joinDate: "Dec 15, 2023",
-      level: "Expert",
-      lastTest: "45m ago",
-    },
-    {
-      id: 7,
-      name: "Tom Harris",
-      email: "tom@example.com",
-      avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Tom",
-      speed: 76,
-      accuracy: 90,
-      testsTaken: 22,
-      rank: 9,
-      totalTests: 1320,
-      avgSpeed: 74,
-      streak: 4,
-      joinDate: "Feb 05, 2024",
-      level: "Intermediate",
-      lastTest: "12h ago",
-    },
-    {
-      id: 8,
-      name: "Lisa Martin",
-      email: "lisa@example.com",
-      avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Lisa",
-      speed: 85,
-      accuracy: 93,
-      testsTaken: 26,
-      rank: 4,
-      totalTests: 1780,
-      avgSpeed: 82,
-      streak: 8,
-      joinDate: "Jan 22, 2024",
-      level: "Advanced",
-      lastTest: "1h ago",
-    },
-    {
-      id: 9,
-      name: "Chris Lee",
-      email: "chris@example.com",
-      avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Chris",
-      speed: 79,
-      accuracy: 91,
-      testsTaken: 24,
-      rank: 6,
-      totalTests: 1450,
-      avgSpeed: 77,
-      streak: 6,
-      joinDate: "Jan 28, 2024",
-      level: "Advanced",
-      lastTest: "4h ago",
-    },
-    {
-      id: 10,
-      name: "Rachel Green",
-      email: "rachel@example.com",
-      avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Rachel",
-      speed: 74,
-      accuracy: 88,
-      testsTaken: 20,
-      rank: 10,
-      totalTests: 1100,
-      avgSpeed: 71,
-      streak: 2,
-      joinDate: "Mar 05, 2024",
-      level: "Intermediate",
-      lastTest: "6h ago",
-    },
-    {
-      id: 11,
-      name: "David White",
-      email: "david@example.com",
-      avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=David",
-      speed: 93,
-      accuracy: 94,
-      testsTaken: 38,
-      rank: 3,
-      totalTests: 2250,
-      avgSpeed: 90,
-      streak: 9,
-      joinDate: "Dec 20, 2023",
-      level: "Expert",
-      lastTest: "2h ago",
-    },
-    {
-      id: 12,
-      name: "Sophie Anderson",
-      email: "sophie@example.com",
-      avatar: "https://api.dicebear.com/9.x/avataaars/svg?seed=Sophie",
-      speed: 86,
-      accuracy: 92,
-      testsTaken: 29,
-      rank: 7,
-      totalTests: 1900,
-      avgSpeed: 83,
-      streak: 7,
-      joinDate: "Jan 12, 2024",
-      level: "Advanced",
-      lastTest: "3h ago",
-    },
-  ];
 
-  const filteredUsers = users
-    .filter(
-      (user) =>
-        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .sort((a, b) => {
-      if (sortBy === "speed") return b.speed - a.speed;
-      if (sortBy === "accuracy") return b.accuracy - a.accuracy;
-      if (sortBy === "tests") return b.testsTaken - a.testsTaken;
-      if (sortBy === "rank") return a.rank - b.rank;
-      return 0;
-    });
+  // const filteredUsers = users
+  //   .filter(
+  //     (user) =>
+  //       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //       user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  //   )
+  //   .sort((a, b) => {
+  //     if (sortBy === "speed") return b.speed - a.speed;
+  //     if (sortBy === "accuracy") return b.accuracy - a.accuracy;
+  //     if (sortBy === "tests") return b.testsTaken - a.testsTaken;
+  //     if (sortBy === "rank") return a.rank - b.rank;
+  //     return 0;
+  //   });
 
-  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  // const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  //const indexOfLastUser = currentPage * usersPerPage;
+  // const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  // const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
 
-  const handleUsersPerPageChange = (e) => {
-    setUsersPerPage(parseInt(e.target.value));
-    setCurrentPage(1);
-  };
+  // const handlePageChange = (pageNumber) => {
+  //   setCurrentPage(pageNumber);
+  // };
 
-  const avgSpeedAll = Math.round(
-    users.reduce((sum, user) => sum + user.avgSpeed, 0) / users.length
-  );
-  const avgAccuracyAll = Math.round(
-    users.reduce((sum, user) => sum + user.accuracy, 0) / users.length
-  );
-  const totalTestsAll = users.reduce((sum, user) => sum + user.testsTaken, 0);
+  // const handleUsersPerPageChange = (e) => {
+  //   setUsersPerPage(parseInt(e.target.value));
+  //   setCurrentPage(1);
+  // };
+
+  // const avgSpeedAll = Math.round(
+  //   users.reduce((sum, user) => sum + user.avgSpeed, 0) / users.length
+  // );
+  // const avgAccuracyAll = Math.round(
+  //   users.reduce((sum, user) => sum + user.accuracy, 0) / users.length
+  // );
+  // const totalTestsAll = users.reduce((sum, user) => sum + user.testsTaken, 0);
 
   const StatCard = ({ label, value, icon, color }) => (
     <div
@@ -302,19 +140,19 @@ export default function Dashboard() {
           />
           <StatCard
             label="Avg Speed"
-            value={`${avgSpeedAll} WPM`}
+             value={`${topData.avgSpeed} WPM`}
             icon="⚡"
             color="hover:shadow-lg hover:shadow-yellow-500/20 transition-all"
           />
           <StatCard
             label="Total Tests"
-            value={totalTestsAll}
+             value={topData.totalTest}
             icon="✓"
             color="hover:shadow-lg hover:shadow-purple-500/20 transition-all"
           />
           <StatCard
             label="Avg Accuracy"
-            value={`${avgAccuracyAll}%`}
+             value={`${topData.avgAccuracy}%`}
             icon="🎯"
             color="hover:shadow-lg hover:shadow-orange-500/20 transition-all"
           />
@@ -324,7 +162,7 @@ export default function Dashboard() {
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-purple-500/20 mb-6">
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="text-gray-400 text-sm">
-              Showing {filteredUsers.length} users
+              Showing {users.length} users
             </div>
             <div className="flex gap-4 items-center">
               <select
@@ -346,8 +184,8 @@ export default function Dashboard() {
                 </option>
               </select>
               <select
-                value={usersPerPage}
-                onChange={handleUsersPerPageChange}
+                // value={usersPerPage}
+                // onChange={handleUsersPerPageChange}
                 className="bg-white/10 border border-purple-500/30 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
                 <option value="10" className="text-gray-800">
@@ -406,7 +244,7 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {currentUsers.map((user) => (
+                {users.map((user) => (
                   <tr
                     key={user.id}
                     className="border-b border-purple-500/10 hover:bg-white/5 transition-colors duration-200"
@@ -439,7 +277,7 @@ export default function Dashboard() {
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3">
                         <img
-                          src={user.avatar}
+                          src={getAvatar(user.name)}
                           alt={user.name}
                           className="w-8 h-8 rounded-full border border-purple-500/50"
                         />
@@ -453,7 +291,7 @@ export default function Dashboard() {
                     </td>
                     <td className="py-4 px-4">
                       <span className="block text-center font-bold text-blue-400">
-                        {user.speed} WPM
+                        {user.best_speed} WPM
                       </span>
                     </td>
                     <td className="py-4 px-4">
@@ -470,13 +308,13 @@ export default function Dashboard() {
                           ></div>
                         </div>
                         <span className="text-green-400 font-bold text-sm">
-                          {user.accuracy}%
+                          {user.avgAccuracy}%
                         </span>
                       </div>
                     </td>
                     <td className="py-4 px-4">
                       <span className="block text-center font-medium text-purple-300">
-                        {user.testsTaken}
+                        {user.totalTest}
                       </span>
                     </td>
                     <td className="py-4 px-4">
@@ -507,10 +345,10 @@ export default function Dashboard() {
                       </span>
                     </td>
                     <td className="py-4 px-4 text-gray-400 text-sm whitespace-nowrap">
-                      {user.lastTest}
+                      {user.lastTestTime}
                     </td>
                     <td className="py-4 px-4 text-gray-400 text-sm whitespace-nowrap">
-                      {user.joinDate}
+                      {formatDate(user.createdAt)}
                     </td>
                   </tr>
                 ))}
@@ -518,15 +356,15 @@ export default function Dashboard() {
             </table>
           </div>
 
-          {currentUsers.length === 0 && (
+          {/* {currentUsers.length === 0 && (
             <div className="p-12 text-center">
               <p className="text-gray-400 text-lg">No users found</p>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Pagination Controls */}
-        {filteredUsers.length > 0 && (
+        {/* {filteredUsers.length > 0 && (
           <div className="mt-6 flex items-center justify-between">
             <div className="text-gray-400 text-sm">
               Showing {indexOfFirstUser + 1}-
@@ -567,7 +405,7 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
-        )}
+        )} */}
       </main>
     </div>
   );
