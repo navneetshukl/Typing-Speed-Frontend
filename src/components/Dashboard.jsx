@@ -21,7 +21,9 @@ export default function Dashboard() {
      const url = `${apiUrl}/api/allUser`;
     try {
 
-      const response=await axios.get(url,{
+      const response=await axios.get(url,{headers: {
+    Authorization: token
+  },
         withCredentials:true,
       });
       console.log("response is ",response)

@@ -30,6 +30,9 @@ export default function Profile() {
   const [chartData, setChartData] = useState([]);
   const [topPerformers, setTopPerformer] = useState([]);
 
+  const token = localStorage.getItem("access_token");
+  const navigate = useNavigate();
+
   const periodToMonth = {
     "1month": 1,
     "6months": 6,
@@ -42,6 +45,10 @@ export default function Profile() {
 
     try {
       const response = await axios.get(url, {
+        headers: {
+          Authorization: token,
+        },
+
         withCredentials: true,
       });
       setTestHistory(response.data.data);
@@ -59,7 +66,12 @@ export default function Profile() {
     console.log("URL is ", url);
 
     try {
-      const response = await axios.get(url, { withCredentials: true });
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: token,
+        },
+        withCredentials: true,
+      });
       console.log("Response is ", response);
       const formatted = transformChartData(response.data.data);
       setChartData(formatted);
@@ -78,6 +90,9 @@ export default function Profile() {
 
     try {
       const response = await axios.get(url, {
+        headers: {
+          Authorization: token,
+        },
         withCredentials: true,
       });
 
@@ -93,6 +108,9 @@ export default function Profile() {
 
     try {
       const response = await axios.get(url, {
+        headers: {
+          Authorization: token,
+        },
         withCredentials: true,
       });
 
@@ -103,8 +121,6 @@ export default function Profile() {
     }
   };
 
-  const token = localStorage.getItem("access_token");
-  const navigate = useNavigate();
   useEffect(() => {
     if (!token) {
       toast.error("User not authorised", { toastId: "unauthorized" });
@@ -121,8 +137,6 @@ export default function Profile() {
     const monthValue = periodToMonth[selectedPeriod];
     fetchChartData(monthValue);
   }, [selectedPeriod]);
-
-
 
   const StatCard = ({ icon, label, value, sublabel, color, trend }) => (
     <div
