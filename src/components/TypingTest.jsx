@@ -56,20 +56,19 @@ const TypingTestUI = () => {
 
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-
-    // 2. Access the environment variable (Best Practice in Vite)
     const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-    // 3. Construct the request body
     const reqData = {
       wpm: wpm,
       totalErrors: errors,
-      typedWords: currentIndex + 1,
+      typedWords: currentIndex ,
       totalWords: sampleText.length,
       totalTime: 60,
       timeTakenByUser: 60 - timeLeft,
       userId:"user1",
     };
+
+    console.log("RequestData ",reqData)
 
     const headers = {
       "Content-Type": "application/json",
@@ -126,10 +125,10 @@ const TypingTestUI = () => {
     setErrorPercentage(calculatedErrorPercentage);
     setAccuracy(calculatedAccuracy);
     setProgressPercentage(calculatedProgress);
-    setCurrentIndex(currentIndex + 1);
-    setWpm(Math.floor((currentIndex + 1 - errors) / (60 - timeLeft)) * 60);
+    setCurrentIndex(Math.min(sampleText.length,currentIndex + 1));
+    setWpm(Math.ceil((currentIndex + 1 - errors) / (60 - timeLeft)) * 60);
 
-    if (currentIndex >= sampleText.length - 1) {
+    if (currentIndex >=sampleText.length-1) {
       setIsCompleted(true);
       setDisabled(true);
       setTimeLeft(timeLeft);
@@ -366,10 +365,12 @@ const TypingTestUI = () => {
             Reset Test
           </button>
 
-          <button className="group flex items-center gap-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-2 py-1 md:px-3 md:py-2 rounded-md md:rounded-lg transition-all duration-300 font-semibold shadow text-xs w-full md:w-auto justify-center">
+          <button className="group flex items-center gap-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-2 py-1 md:px-3 md:py-2 rounded-md md:rounded-lg transition-all duration-300 font-semibold shadow text-xs w-full md:w-auto justify-center"
+          onClick={reset}>
             <Play
               size={12}
               className="md:w-3 md:h-3 group-hover:scale-110 transition-transform duration-200"
+              
             />
             New Challenge
           </button>
