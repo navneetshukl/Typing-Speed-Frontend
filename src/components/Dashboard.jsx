@@ -220,7 +220,7 @@ export default function Dashboard() {
                     Email
                   </th>
                   <th className="text-center py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
-                    Current Speed
+                    Best Speed
                   </th>
                   <th className="text-center py-4 px-4 font-bold text-purple-300 whitespace-nowrap">
                     Avg Speed
@@ -293,7 +293,7 @@ export default function Dashboard() {
                     </td>
                     <td className="py-4 px-4">
                       <span className="block text-center font-bold text-blue-400">
-                        {user.best_speed} WPM
+                        {user.bestSpeed} WPM
                       </span>
                     </td>
                     <td className="py-4 px-4">
@@ -347,7 +347,7 @@ export default function Dashboard() {
                       </span>
                     </td>
                     <td className="py-4 px-4 text-gray-400 text-sm whitespace-nowrap">
-                      {user.lastTestTime}
+                      {formatDate(user.lastTestTime)}
                     </td>
                     <td className="py-4 px-4 text-gray-400 text-sm whitespace-nowrap">
                       {formatDate(user.createdAt)}
