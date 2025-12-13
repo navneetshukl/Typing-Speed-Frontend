@@ -25,7 +25,9 @@ const Login = () => {
                 withCredentials:true
             }
         );
+        console.log("response is login ",response.data)
         localStorage.setItem("access_token",response.data.access_token)
+        localStorage.setItem("user",JSON.stringify(response.data.data))
         navigate("/typing", { replace: true });
         toast.success("login successfull");
         setEmail("");

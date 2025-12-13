@@ -42,7 +42,10 @@ export default function Dashboard() {
   useEffect(() => {
     if (!token) {
       toast.error("User not authorised", { toastId: "unauthorized" });
+            localStorage.removeItem("access_token")
+      localStorage.removeItem("user")
       navigate("/login", { replace: true });
+
     }
     fetchData();
    

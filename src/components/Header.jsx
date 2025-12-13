@@ -1,12 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const Header = ({ user }) => {
+const Header = () => {
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+
+    if (!userData) {
+      navigate("/login");
+      localStorage.removeItem("access_token")
+      localStorage.removeItem("user")
+      return;
+    }
+
+    setUser(JSON.parse(userData));
+  }, [navigate]);
+
+  console.log("Userdata in header ", user);
+
   const handleLogout = () => {
-    // Clear user session / token
-    localStorage.removeItem("userToken");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+    setUser(null);
     navigate("/login");
   };
 
@@ -41,15 +58,18 @@ const Header = ({ user }) => {
             </Link>
           </nav>
 
-          {/* User / Logout */}
           <div className="flex items-center space-x-4">
-            {user && <span className="hidden md:block">Hi, {user.name}</span>}
-            <button
-              onClick={handleLogout}
-              className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-xl text-sm transition-all duration-200"
-            >
-              Logout
-            </button>
+            {user && (
+              <>
+                <span className="hidden md:block">Hi, {user.name}</span>
+                <button
+                  onClick={handleLogout}
+                  className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-xl text-sm transition-all duration-200"
+                >
+                  Logout
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

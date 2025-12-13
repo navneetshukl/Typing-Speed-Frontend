@@ -124,7 +124,10 @@ export default function Profile() {
   useEffect(() => {
     if (!token) {
       toast.error("User not authorised", { toastId: "unauthorized" });
-      navigate("/login", { replace: true });
+
+        localStorage.removeItem("access_token")
+            localStorage.removeItem("user")
+                  navigate("/login", { replace: true });
     }
     fetchRecentTest();
     fetchUsersData();
