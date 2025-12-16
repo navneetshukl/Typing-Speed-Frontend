@@ -28,6 +28,8 @@ const Login = () => {
         console.log("response is login ",response.data)
         localStorage.setItem("access_token",response.data.access_token)
         localStorage.setItem("user",JSON.stringify(response.data.data))
+        window.dispatchEvent(new Event("userChanged"));
+
         navigate("/typing", { replace: true });
         toast.success("login successfull");
         setEmail("");

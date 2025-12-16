@@ -6,23 +6,26 @@ const Header = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
+    const getUser = () => {
+      const userData = localStorage.getItem("user");
+      setUser(userData ? JSON.parse(userData) : null);
+    };
+    getUser();
+    window.addEventListener("userChanged", getUser);
 
-    if (!userData) {
-      navigate("/login");
-      localStorage.removeItem("access_token")
-      localStorage.removeItem("user")
-      return;
-    }
-
-    setUser(JSON.parse(userData));
-  }, [navigate]);
+    return () => {
+      window.removeEventListener("userChanged", getUser);
+    };
+  }, []);
 
   console.log("Userdata in header ", user);
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user");
+
+    window.dispatchEvent(new Event("userChanged"));
+
     setUser(null);
     navigate("/login");
   };

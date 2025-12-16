@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
 
 import axios from "axios";
 import {
@@ -36,9 +38,10 @@ const TypingTestUI = () => {
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [wpm, setWpm] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
+  const[sampleText,setSampleText]=useState("");
 
   // Static UI data for display
-  const sampleText = "Navneet Shukla is Good Boy.";
+  //const sampleText = "Navneet Shukla is Good Boy.";
   const isActive = true;
   const isMobile = false;
 
@@ -160,7 +163,30 @@ const TypingTestUI = () => {
     setProgressPercentage(0);
     setWpm(0);
     setTimeLeft(60);
+    fetchWordsToPrint();
   };
+
+   const fetchWordsToPrint = async () => {
+    const url = `${apiUrl}/api/typingWord`;
+
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: token,
+        },
+        withCredentials: true,
+      });
+
+      setSampleText(response.data.data);
+    } catch (error) {
+      console.error("Users Data error:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Users Data failed");
+    }
+  };
+
+  useEffect(()=>{
+fetchWordsToPrint();
+  },[])
 
   // Render text with color coding (UI only)
   const renderText = () => {
