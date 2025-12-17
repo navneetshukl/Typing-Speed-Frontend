@@ -168,6 +168,7 @@ const TypingTestUI = () => {
 
    const fetchWordsToPrint = async () => {
     const url = `${apiUrl}/api/typingWord`;
+    console.log("URL Type is ",url)
 
     try {
       const response = await axios.get(url, {
