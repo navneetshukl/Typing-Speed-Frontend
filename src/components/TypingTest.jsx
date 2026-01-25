@@ -47,7 +47,7 @@ const TypingTestUI = () => {
 
   const CountdownTimer = () => {
     useEffect(() => {
-      if (timeLeft === 0) {
+      if (timeLeft <= 0) {
         handleSubmit();
         return;
       }
@@ -86,6 +86,7 @@ const TypingTestUI = () => {
 
       const { data } = await axios.post(url, reqData,{headers});
       console.log(`✅ Success: Data sent. Response: ${JSON.stringify(data)}`);
+      toast.success("test submitted successfully");
     } catch (error) {
       console.error(
         "❌ Error sending data:",

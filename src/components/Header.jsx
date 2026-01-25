@@ -18,8 +18,6 @@ const Header = () => {
     };
   }, []);
 
-  console.log("Userdata in header ", user);
-
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user");
@@ -64,7 +62,7 @@ const Header = () => {
           <div className="flex items-center space-x-4">
             {user && (
               <>
-                <span className="hidden md:block">Hi, {user.name}</span>
+                <span className="hidden md:block">Hi, {user.user.name}</span>
                 <button
                   onClick={handleLogout}
                   className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-xl text-sm transition-all duration-200"
